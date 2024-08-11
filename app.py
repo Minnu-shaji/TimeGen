@@ -69,16 +69,16 @@ def view():
     cell_obj2 =str( sheet_obj.cell(row=2, column=1).value)
     
     #s1=pd.read_excel("Course_teacher_map.xlsx")
-    wb = xlsxwriter.Workbook('static/final.xlsx')
-    ws = wb.add_worksheet("TimeTable")
-    ws2=wb.add_worksheet("TeacherSlot")
-    f2= wb.add_format({'bold':True,'bg_color':'#b2b2b2'})
-    f3=wb.add_format({'bg_color':'#808080'})
-    f4=wb.add_format({'bold':True,'bg_color':'#808080'})
-    f5=wb.add_format({'bg_color':'#b2b2b2'})
-    f6 = wb.add_format({'bold':True,'bg_color':'#999999'})
-    f7=wb.add_format({'bold':True})
-    working_days=["Monday","Tuesday","Wednesday","Thursday","Friday"]
+    # wb = xlsxwriter.Workbook('static/final.xlsx')
+    # ws = wb.add_worksheet("TimeTable")
+    # ws2=wb.add_worksheet("TeacherSlot")
+    # f2= wb.add_format({'bold':True,'bg_color':'#b2b2b2'})
+    # f3=wb.add_format({'bg_color':'#808080'})
+    # f4=wb.add_format({'bold':True,'bg_color':'#808080'})
+    # f5=wb.add_format({'bg_color':'#b2b2b2'})
+    # f6 = wb.add_format({'bold':True,'bg_color':'#999999'})
+    # f7=wb.add_format({'bold':True})
+    # working_days=["Monday","Tuesday","Wednesday","Thursday","Friday"]
 
 
 
