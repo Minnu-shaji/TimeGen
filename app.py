@@ -2,6 +2,7 @@ from flask import Flask, render_template, request,send_file
 from flask import Flask, send_from_directory
 import pandas as pd
 import random
+from tempfile import NamedTemporaryFile
 import xlsxwriter
 import openpyxl
 classes=[]
@@ -205,91 +206,102 @@ def view():
     k=0
     timetable=[]
     counter=3
-    
-    merge_format = wb.add_format(
-    {
-        "bold": 1,
-        "align": "center",
-        "valign": "vcenter"
-    }
-    )
-    ws.merge_range("A1:U1", cell_obj1, merge_format)
-    ws.merge_range("A2:U2", cell_obj2, merge_format)
-    
-    while k<t_len:
-        index=0
-        temp=[[0]*TOTAL_HRS for i in range(DAYS)]
-        timetable.append(['','','',classes[k],'','',''])
-        for i in range(DAYS):
-            for j in range(TOTAL_HRS):
-                if str(timeslot[k][index]).lower()=="nan":
-                    timeslot[k][index] ="REMEDIAL"
-                temp[i][j]=timeslot[k][index]           
-                index+=1
-            timetable.append(temp[i])
-            index+=GAP
-        ws.write(counter,4,classes[k])
-        if k%2==0:
-            ws.write_row(counter+1,0,['','1st','2nd','3rd','Lunch','4th','5th','6th'],f6)
-        else:
-            ws.write_row(counter+1,0,['','1st','2nd','3rd','Lunch','4th','5th','6th'],f4)
-        for row in range(len(temp)):
-        # ws2.write_row(counter+row,1,['1st','2nd','3rd','Lunch','4th','5th','6th'],f2)
-            if row%2==0:
-                ws.write(counter + row+2, 0, working_days[row],f6)
-            else:
-                ws.write(counter + row+2, 0, working_days[row],f4)
-            
-            for col, value in enumerate(temp[row]):
-                if row%2==0:
-                    ws.write(counter + row+2, col + 1, value,f5)
-                else:
-                    ws.write(counter + row+2, col + 1, value,f3)
-        counter+=8
-        k=k+1
+    with NamedTemporaryFile(suffix=".xlsx", delete=False) as temp_file:
+        wb = xlsxwriter.Workbook('static/final.xlsx')
+        ws = wb.add_worksheet("TimeTable")
+        ws2=wb.add_worksheet("TeacherSlot")
+        f2= wb.add_format({'bold':True,'bg_color':'#b2b2b2'})
+        f3=wb.add_format({'bg_color':'#808080'})
+        f4=wb.add_format({'bold':True,'bg_color':'#808080'})
+        f5=wb.add_format({'bg_color':'#b2b2b2'})
+        f6 = wb.add_format({'bold':True,'bg_color':'#999999'})
+        f7=wb.add_format({'bold':True})
+        working_days=["Monday","Tuesday","Wednesday","Thursday","Friday"]
         
-   # print(timetable)
-
-    k=0
-    teachslot=[]
-    counter=3
-    
-
-    ws2.merge_range("A1:U1", cell_obj1, merge_format)
-    ws2.merge_range("A2:U2", cell_obj2, merge_format)
-    
-    while k<teacher_len:
-        index=0
-        temp=[[0]*TOTAL_HRS for i in range(DAYS)]
-        teachslot.append([teachers[k],'','','','','',''])
-        for i in range(DAYS):
-            for j in range(TOTAL_HRS):
-                if teacherslot[k][index]==0:
-                    teacherslot[k][index]="-"
-                temp[i][j]=teacherslot[k][index]
-                index+=1
-            teachslot.append(temp[i])    
-            index+=GAP
-        ws2.write(counter,4,teachers[k],f7)
-        if k%2==0:
-            ws2.write_row(counter+1,0,['','1st','2nd','3rd','Lunch','4th','5th','6th'],f6)
-        else:
-            ws2.write_row(counter+1,0,['','1st','2nd','3rd','Lunch','4th','5th','6th'],f4)
-        for row in range(len(temp)):
-        # ws2.write_row(counter+row,1,['1st','2nd','3rd','Lunch','4th','5th','6th'],f2)
-            if row%2==0:
-                ws2.write(counter + row+2, 0, working_days[row],f6)
+        merge_format = wb.add_format(
+        {
+            "bold": 1,
+            "align": "center",
+            "valign": "vcenter"
+        }
+        )
+        ws.merge_range("A1:U1", cell_obj1, merge_format)
+        ws.merge_range("A2:U2", cell_obj2, merge_format)
+        
+        while k<t_len:
+            index=0
+            temp=[[0]*TOTAL_HRS for i in range(DAYS)]
+            timetable.append(['','','',classes[k],'','',''])
+            for i in range(DAYS):
+                for j in range(TOTAL_HRS):
+                    if str(timeslot[k][index]).lower()=="nan":
+                        timeslot[k][index] ="REMEDIAL"
+                    temp[i][j]=timeslot[k][index]           
+                    index+=1
+                timetable.append(temp[i])
+                index+=GAP
+            ws.write(counter,4,classes[k])
+            if k%2==0:
+                ws.write_row(counter+1,0,['','1st','2nd','3rd','Lunch','4th','5th','6th'],f6)
             else:
-                ws2.write(counter + row+2, 0, working_days[row],f4)
-            for col, value in enumerate(temp[row]):
+                ws.write_row(counter+1,0,['','1st','2nd','3rd','Lunch','4th','5th','6th'],f4)
+            for row in range(len(temp)):
+            # ws2.write_row(counter+row,1,['1st','2nd','3rd','Lunch','4th','5th','6th'],f2)
                 if row%2==0:
-                    ws2.write(counter + row+2, col + 1, value,f5)
+                    ws.write(counter + row+2, 0, working_days[row],f6)
                 else:
-                    ws2.write(counter + row+2, col + 1, value,f3)
-        counter+=8
-        k=k+1
-    #print(teachslot)
-    wb.close()
+                    ws.write(counter + row+2, 0, working_days[row],f4)
+                
+                for col, value in enumerate(temp[row]):
+                    if row%2==0:
+                        ws.write(counter + row+2, col + 1, value,f5)
+                    else:
+                        ws.write(counter + row+2, col + 1, value,f3)
+            counter+=8
+            k=k+1
+            
+       # print(timetable)
+    
+        k=0
+        teachslot=[]
+        counter=3
+        
+    
+        ws2.merge_range("A1:U1", cell_obj1, merge_format)
+        ws2.merge_range("A2:U2", cell_obj2, merge_format)
+        
+        while k<teacher_len:
+            index=0
+            temp=[[0]*TOTAL_HRS for i in range(DAYS)]
+            teachslot.append([teachers[k],'','','','','',''])
+            for i in range(DAYS):
+                for j in range(TOTAL_HRS):
+                    if teacherslot[k][index]==0:
+                        teacherslot[k][index]="-"
+                    temp[i][j]=teacherslot[k][index]
+                    index+=1
+                teachslot.append(temp[i])    
+                index+=GAP
+            ws2.write(counter,4,teachers[k],f7)
+            if k%2==0:
+                ws2.write_row(counter+1,0,['','1st','2nd','3rd','Lunch','4th','5th','6th'],f6)
+            else:
+                ws2.write_row(counter+1,0,['','1st','2nd','3rd','Lunch','4th','5th','6th'],f4)
+            for row in range(len(temp)):
+            # ws2.write_row(counter+row,1,['1st','2nd','3rd','Lunch','4th','5th','6th'],f2)
+                if row%2==0:
+                    ws2.write(counter + row+2, 0, working_days[row],f6)
+                else:
+                    ws2.write(counter + row+2, 0, working_days[row],f4)
+                for col, value in enumerate(temp[row]):
+                    if row%2==0:
+                        ws2.write(counter + row+2, col + 1, value,f5)
+                    else:
+                        ws2.write(counter + row+2, col + 1, value,f3)
+            counter+=8
+            k=k+1
+        #print(teachslot)
+        wb.close()
 
 
     # tf=pd.DataFrame(timetable,index=['','monday','tuesday','wednesday','thursday','friday']*t_len,columns=['1st','2nd','3rd','Lunch','4th','5th','6th'])
